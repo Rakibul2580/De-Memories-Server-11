@@ -50,9 +50,16 @@ async function run() {
       res.send(result);
     });
     app.get("/myreviews/:email", async (req, res) => {
-      const reviewEmail = req.params.email;
-      const query = { reviewEmail };
+      const userEmail = req.params.email;
+      const query = { userEmail };
       const result = await reviews.find(query).toArray();
+      res.send(result);
+    });
+
+    app.delete("/reviewdelete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviews.deleteOne(query);
       res.send(result);
     });
   } catch {
