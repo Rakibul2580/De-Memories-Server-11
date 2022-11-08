@@ -38,10 +38,16 @@ async function run() {
       const result = await services.findOne(query);
       res.send(result);
     });
-
     app.post("/review", async (req, res) => {
       const query = req.body;
       const result = await reviews.insertOne(query);
+      res.send(result);
+    });
+    app.get("/reviews", async (req, res) => {
+      const title = req.query.name;
+      const query = { title };
+      console.log(query);
+      const result = await reviews.find(query).toArray();
       res.send(result);
     });
   } catch {
