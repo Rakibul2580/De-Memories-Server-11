@@ -43,9 +43,15 @@ async function run() {
       const result = await reviews.insertOne(query);
       res.send(result);
     });
-    app.get("/reviews", async (req, res) => {
-      const title = req.query.name;
+    app.get("/reviews/:name", async (req, res) => {
+      const title = req.params.name;
       const query = { title };
+      const result = await reviews.find(query).toArray();
+      res.send(result);
+    });
+    app.get("/myreviews/:email", async (req, res) => {
+      const reviewEmail = req.params.email;
+      const query = { reviewEmail };
       console.log(query);
       const result = await reviews.find(query).toArray();
       res.send(result);
@@ -151,7 +157,7 @@ app.listen(port, () => {
 //   },
 //   {
 //     "price": "2500",
-//     "title": "",
+//     "title": "Portrait and Macro",
 //     "details":
 //       "Macro photography is a form of close-up photography, originally developed for scientific research. The strictest definition of macro photography is that the subject is photographed at 1:1 magnification—in other words, the subject is life-sized in the photo.However, most people use the term “macro photography” to refer to any photograph that depicts a close-up and extremely detailed image of a small subject.Macro photography as we know it began in the early 1900s, when F. Percy Smith began photographing insects using much of the same equipment we use today: bellows and extension tubes. These devices placed the lens further away from the film negative, creating a closer focal point and allowing for more close-up images.",
 //     "picture":
