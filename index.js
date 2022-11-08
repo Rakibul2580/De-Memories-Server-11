@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -18,18 +18,38 @@ const client = new MongoClient(uri, {
 async function run() {
   const services = client.db("photoData").collection("service");
   const reviews = client.db("photoData").collection("review");
-  app.get("/", async (req, res) => {
-    const query = {};
-    const result = await services.find(query).limit(3).toArray();
-    res.send(result);
-  });
-  app.get("/services", async (req, res) => {
-    const query = {};
-    const result = await services.find(query).toArray();
-    res.send(result);
-  });
+
+  try {
+    app.get("/", async (req, res) => {
+      const query = {};
+      const result = await services.find(query).limit(3).toArray();
+      res.send(result);
+    });
+
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const result = await services.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/service/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await services.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/review", async (req, res) => {
+      const query = req.body;
+      const result = await reviews.insertOne(query);
+      res.send(result);
+    });
+  } catch {
+    (error) => console.log(error.message);
+  }
 }
 run();
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
