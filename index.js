@@ -78,6 +78,13 @@ async function run() {
       const result = await myServices.insertOne(query);
       res.send(result);
     });
+
+    app.get("/myservice/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email };
+      const result = await myServices.find(query).toArray();
+      res.send(result);
+    });
   } catch {
     (error) => console.log(error.message);
   }
