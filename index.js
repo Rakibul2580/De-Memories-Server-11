@@ -51,6 +51,12 @@ async function run() {
       const result = await reviews.find(query).toArray();
       res.send(result);
     });
+    app.get("/review/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviews.find(query).toArray();
+      res.send(result);
+    });
     app.get("/myreviews/:email", async (req, res) => {
       const userEmail = req.params.email;
       const query = { userEmail };
@@ -83,6 +89,19 @@ async function run() {
       const email = req.params.email;
       const query = { email };
       const result = await myServices.find(query).toArray();
+      res.send(result);
+    });
+
+    app.put("/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const update = req.body.review;
+      const query = { _id: ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          review: update,
+        },
+      };
+      const result = await reviews.updateOne(query, updatedDoc);
       res.send(result);
     });
   } catch {
