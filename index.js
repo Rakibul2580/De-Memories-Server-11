@@ -1,8 +1,8 @@
 const express = require("express");
-const app = express();
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
+const app = express();
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
 
@@ -15,6 +15,22 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+const verifyJWT = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const authHeader2 = req.headers;
+  if (!authHeader) {
+    return res.status(401).send([{ message: "Unauthorized access" }]);
+  }
+  const token = authHeader;
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(401).send([{ message: "Unauthorized access" }]);
+    }
+    req.decoded = decoded;
+    next();
+  });
+};
 
 async function run() {
   const services = client.db("photoData").collection("service");
@@ -57,9 +73,17 @@ async function run() {
       const result = await reviews.find(query).toArray();
       res.send(result);
     });
-    app.get("/myreviews/:email", async (req, res) => {
-      const userEmail = req.params.email;
-      const query = { userEmail };
+    app.get("/myreviews/:email", verifyJWT, async (req, res) => {
+      const decoded = req.decoded;
+      if (decoded.email !== req.params.email) {
+        return res.status(401).send([{ message: "Unauthorized access" }]);
+      }
+      let query = {};
+      if (req.params.email) {
+        query = {
+          userEmail: req.params.email,
+        };
+      }
       const result = await reviews.find(query).toArray();
       res.send(result);
     });
