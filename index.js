@@ -18,7 +18,6 @@ const client = new MongoClient(uri, {
 
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  const authHeader2 = req.headers;
   if (!authHeader) {
     return res.status(401).send([{ message: "Unauthorized access" }]);
   }
@@ -58,13 +57,14 @@ async function run() {
     });
     app.post("/review", async (req, res) => {
       const query = req.body;
+      query.date = new Date();
       const result = await reviews.insertOne(query);
       res.send(result);
     });
     app.get("/reviews/:name", async (req, res) => {
       const title = req.params.name;
       const query = { title };
-      const result = await reviews.find(query).toArray();
+      const result = await reviews.find(query).sort({ date: -1 }).toArray();
       res.send(result);
     });
     app.get("/review/:id", async (req, res) => {
@@ -84,7 +84,7 @@ async function run() {
           userEmail: req.params.email,
         };
       }
-      const result = await reviews.find(query).toArray();
+      const result = await reviews.find(query).sort({ date: -1 }).toArray();
       res.send(result);
     });
 
@@ -105,16 +105,16 @@ async function run() {
 
     app.post("/myservice", async (req, res) => {
       const query = req.body;
-      const result = await myServices.insertOne(query);
+      const result = await services.insertOne(query);
       res.send(result);
     });
 
-    app.get("/myservice/:email", async (req, res) => {
-      const email = req.params.email;
-      const query = { email };
-      const result = await myServices.find(query).toArray();
-      res.send(result);
-    });
+    // app.get("/myservice/:email", async (req, res) => {
+    //   const email = req.params.email;
+    //   const query = { email };
+    //   const result = await myServices.find(query).toArray();
+    //   res.send(result);
+    // });
 
     app.put("/update/:id", async (req, res) => {
       const id = req.params.id;
