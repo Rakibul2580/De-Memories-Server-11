@@ -16,6 +16,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+// verifyJWT token
 const verifyJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -37,42 +38,53 @@ async function run() {
   const myServices = client.db("photoData").collection("myService");
 
   try {
+    // Home page Get Data
     app.get("/", async (req, res) => {
       const query = {};
       const result = await services.find(query).limit(3).toArray();
       res.send(result);
     });
 
+    // Service Page Get Data
     app.get("/services", async (req, res) => {
       const query = {};
       const result = await services.find(query).toArray();
       res.send(result);
     });
 
+    // Details Get Data
     app.get("/service/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await services.findOne(query);
       res.send(result);
     });
+
+    // Post Review
     app.post("/review", async (req, res) => {
       const query = req.body;
       query.date = new Date();
       const result = await reviews.insertOne(query);
       res.send(result);
     });
+
+    // Get Review By Service Name
     app.get("/reviews/:name", async (req, res) => {
       const title = req.params.name;
       const query = { title };
       const result = await reviews.find(query).sort({ date: -1 }).toArray();
       res.send(result);
     });
+
+    // Get Review By Service id
     app.get("/review/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await reviews.find(query).toArray();
       res.send(result);
     });
+
+    // Get My Reviews
     app.get("/myreviews/:email", verifyJWT, async (req, res) => {
       const decoded = req.decoded;
       if (decoded.email !== req.params.email) {
@@ -88,6 +100,7 @@ async function run() {
       res.send(result);
     });
 
+    // Delete Review
     app.delete("/reviewdelete/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -95,6 +108,7 @@ async function run() {
       res.send(result);
     });
 
+    // Create JWT token
     app.post("/jwt", (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -103,6 +117,7 @@ async function run() {
       res.send({ token });
     });
 
+    // Add My Service
     app.post("/myservice", async (req, res) => {
       const query = req.body;
       const result = await services.insertOne(query);
@@ -116,6 +131,7 @@ async function run() {
     //   res.send(result);
     // });
 
+    // Update My Review
     app.put("/update/:id", async (req, res) => {
       const id = req.params.id;
       const update = req.body.review;
