@@ -41,7 +41,11 @@ async function run() {
     // Home page Get Data
     app.get("/", async (req, res) => {
       const query = {};
-      const result = await services.find(query).limit(3).toArray();
+      const result = await services
+        .find(query)
+        .sort({ date: -1 })
+        .limit(3)
+        .toArray();
       res.send(result);
     });
 
@@ -120,6 +124,7 @@ async function run() {
     // Add My Service
     app.post("/myservice", async (req, res) => {
       const query = req.body;
+      query.date = new Date();
       const result = await services.insertOne(query);
       res.send(result);
     });
